@@ -1,12 +1,11 @@
-# emre-spark-docker
+# spark-docker
 
-emre-spark-docker is a project that provides a local setup of a Spark cluster using Docker Compose. It allows you to test and debug the behavior of your Spark applications in a distributed environment.
+spark-docker is a project that provides a local setup of a Spark cluster using Docker Compose. It allows you to test and debug the behavior of your Spark applications in a distributed environment.
 
 ## Table of Contents
 
 - [Features](#features)
 - [Prerequisites](#prerequisites)
-- [Installation](#installation)
 - [Usage](#usage)
 - [Configuration](#configuration)
 - [Contributing](#contributing)
@@ -21,28 +20,12 @@ emre-spark-docker is a project that provides a local setup of a Spark cluster us
 
 ## Prerequisites
 
-Before getting started with emre-spark-docker, ensure that you have the following prerequisites installed on your system:
+Before getting started with spark-docker, ensure that you have the following prerequisites installed on your system:
 
 - Docker: [Install Docker](https://docs.docker.com/get-docker/)
 - Docker Compose: [Install Docker Compose](https://docs.docker.com/compose/install/)
 - justfile: [Install justfile](https://github.com/casey/just#installation)
 
-## Installation
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/your-username/emre-spark-docker.git
-   ```
-
-2. Navigate to the project directory:
-   ```
-   cd emre-spark-docker
-   ```
-
-3. Use justfile to build the Docker images:
-   ```
-   just build
-   ```
 
 ## Usage
 
@@ -69,7 +52,7 @@ Here an example flow:
 
 ## Configuration
 
-The emre-spark-docker project provides a default configuration for the Spark cluster. If you need to customize the configuration, you can modify the following files:
+The spark-docker project provides a default configuration for the Spark cluster. If you need to customize the configuration, you can modify the following files:
 
 - `docker-compose.yaml`: Adjust the Docker Compose configuration for the Spark cluster.
 - `spark-defaults.conf`: Configure Spark-specific settings.
@@ -79,7 +62,7 @@ Make sure to rebuild the Docker images after making any configuration changes.
 
 ## Contributing
 
-Contributions to emre-spark-docker are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request. Or just reach out to us directly.
+Contributions to spark-docker are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request. Or just reach out to us directly.
 
 ## License
 
