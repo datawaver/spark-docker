@@ -15,7 +15,7 @@ MONGODB_DATABASE = os.getenv("MONGODB_DATABASE")
 MONGODB_COLLECTION = os.getenv("MONGODB_COLLECTION")
 
 
-BUFFER_SIZE_IN_SECONDS = 5  # Batch interval of 20 seconds
+BUFFER_SIZE_IN_SECONDS = 20  # Batch interval of 20 seconds
 
 
 def main():
