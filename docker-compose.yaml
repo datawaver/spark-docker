@@ -2,18 +2,23 @@ services:
   # --------------------------------------------------
   # Spark Cluster
   # --------------------------------------------------
+  # Bitnami documentation: https://github.com/bitnami/containers/tree/main/bitnami/spark#how-to-use-this-image
 
   master:
     image: bitnami/spark:latest
+    # user: root
     environment:
       - SPARK_MODE=master
       - SPARK_RPC_AUTHENTICATION_ENABLED=no
       - SPARK_RPC_ENCRYPTION_ENABLED=no
       - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
       - SPARK_SSL_ENABLED=no
+      - SPARK_PUBLIC_DNS=localhost
     ports:
-      - "8080:8080"  # Spark Master Web UI
-      - "7077:7077"  # Spark Master Port
+      - "8080:8080" # Spark Master Web UI
+      - "7077:7077" # Spark Master Port
+    # volumes:
+    #   - /path/to/spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
 
   worker-alice:
     image: bitnami/spark:latest
@@ -21,10 +26,11 @@ services:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://master:7077
       - SPARK_WORKER_MEMORY=1G
+      - SPARK_PUBLIC_DNS=localhost
     depends_on:
       - master
     ports:
-      - "8081:8081"  # Spark Worker Web UI
+      - "8081:8081" # Spark Worker Web UI
 
   worker-bob:
     image: bitnami/spark:latest
@@ -32,8 +38,58 @@ services:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://master:7077
       - SPARK_WORKER_MEMORY=1G
+      - SPARK_PUBLIC_DNS=localhost
     depends_on:
       - master
     ports:
-      - "8082:8081"  # Spark Worker Web UI
+      - "8082:8081" # Spark Worker Web UI
 
+  # --------------------------------------------------
+  # Example Sources
+  # --------------------------------------------------
+  twitter:
+    build:
+      context: ./examples/sources/twitter-stream-simulator
+      dockerfile: Dockerfile
+    ports:
+      - "5555:5555"
+    restart: always
+
+  covidtracker:
+    build:
+      context: ./examples/sources/covidtracker-api
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    restart: always
+
+  # --------------------------------------------------
+  # Example Sinks
+  # --------------------------------------------------
+
+  mongodb:
+    image: mongo:4.0.0
+    ports:
+      - "27017:27017"
+
+  # --------------------------------------------------
+  # Example job sumitter
+  # --------------------------------------------------
+  submitter:
+    build:
+      context: ./submitter
+      dockerfile: Dockerfile
+    user: root # do not use in production :)
+    tty: true
+    stdin_open: true
+    environment:
+      - SPARK_MASTER=spark://master:7077
+      - TWITTER_STREAM_HOST=twitter
+      - TWITTER_STREAM_PORT=5555
+      - COVIDDATA_TRACKER_API_URL=http://covidtracker:5000/
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE=twitter_data
+      - MONGODB_COLLECTION=tweets
+    volumes:
+      - ./examples/spark-streaming-job:/app

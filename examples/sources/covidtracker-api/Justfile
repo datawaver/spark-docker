@@ -1,0 +1,21 @@
+#!/usr/bin/env just
+
+help:
+    @just --list
+
+# setup local dev environment
+init:
+    pipenv install --dev
+
+run:
+    run.sh
+
+autolint:
+    pipenv run ruff check --select I --fix .
+
+test:
+    pipenv run pytest test*.py
+
+@clean:
+    find . -name "*.pyc" -exec rm -f {} \;
+    find . -name ".*_cache" -type d -exec rm -rf {} \; 2>/dev/null || true

@@ -1,0 +1,43 @@
+#!/usr/bin/env just
+
+# This justfile contains everything I needed to develop the project.
+# It doesn't contain all common recipes, but only the ones I needed in the short time.
+# Its a first MVP and could be improved in the future.
+
+@help:
+    just --list
+
+# local dev environment
+init:
+    pipenv install --dev
+
+test:
+    pipenv run pytest 
+
+autolint:
+    pipenv run ruff check --fix
+    pipenv run ruff check --select I --fix .
+
+@clean:
+    -find . -name "*.pyc" -exec rm -f {} \;
+    -find . -name ".*_cache" -type d -exec rm -rf {} \;
+    -find . -name ".pytest_cache" -type d -exec rm -rf {} \;
+    -find . -name "*.egg-info" -type d -exec rm -rf {} \;
+    -find . -name "dist" -type d -exec rm -rf {} \;
+    -find . -name "build" -type d -exec rm -rf {} \;
+
+build:
+    pipenv run python setup.py bdist_egg
+
+# to run on the submit docker container
+submit:
+    #!/bin/bash
+    python setup.py bdist_egg
+    echo "Preparing some dependencies until we have a better solution ..."
+    pip install requests pymongo
+    spark-submit \
+      --deploy-mode client \
+      --master spark://master:7077 \
+      --py-files $(ls ./dist/*.egg | head -1) \
+      ./tweets/spark_job.py
+
