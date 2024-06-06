@@ -29,6 +29,8 @@ Before getting started with spark-docker, ensure that you have the following pre
 
 ## Usage
 
+TLDR; `just demo` 
+
 Here an example flow:
 
 1. Start the Spark cluster using Docker Compose:

@@ -30,6 +30,10 @@ clean-all:
   docker-compose down --rmi all --volumes --remove-orphans
   docker image prune -f
 
+# ----------------------------------------
+# Additional recipes for debugging and testing
+# ----------------------------------------
+
 # Display important information about the Docker Compose setup
 @info:
     echo
@@ -59,9 +63,6 @@ _ports:
     #!/usr/bin/env bash
     docker-compose ps --format json | jq -r '.Name, .Ports'
 
-# ----------------------------------------
-# Additional recipes for debugging and testing
-# ----------------------------------------
 
 # Start a bash shell in the submitter
 submitter: 
