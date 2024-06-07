@@ -1,9 +1,5 @@
 #!/usr/bin/env just
 
-# This justfile contains everything I needed to develop the project.
-# It doesn't contain all common recipes, but only the ones I needed in the short time.
-# Its a first MVP and could be improved in the future.
-
 @help:
     just --list
 
@@ -20,24 +16,49 @@ autolint:
 
 @clean:
     -find . -name "*.pyc" -exec rm -f {} \;
-    -find . -name ".*_cache" -type d -exec rm -rf {} \;
-    -find . -name ".pytest_cache" -type d -exec rm -rf {} \;
-    -find . -name "*.egg-info" -type d -exec rm -rf {} \;
-    -find . -name "dist" -type d -exec rm -rf {} \;
-    -find . -name "build" -type d -exec rm -rf {} \;
+    just _find_and_remove_dir ".*_cache"
+    just _find_and_remove_dir "*.egg-info"
+    just _find_and_remove_dir "dist"
+    just _find_and_remove_dir "build"
+    
+@_find_and_remove_dir PATTERN:
+    find . -name "{{PATTERN}}" -type d -maxdepth 1 -exec rm -rf {} \;
 
-build:
+build-old:
     pipenv run python setup.py bdist_egg
 
 # to run on the submit docker container
 submit:
     #!/bin/bash
-    python setup.py bdist_egg
     echo "Preparing some dependencies until we have a better solution ..."
     pip install requests pymongo
     spark-submit \
       --deploy-mode client \
       --master spark://master:7077 \
-      --py-files $(ls ./dist/*.egg | head -1) \
+      --py-files (ls dist/) \
       ./tweets/spark_job.py
 
+# package the python to use with spark submit
+build: 
+    #!/bin/bash
+    PIP_REQUIRE_VIRTUALENV=false
+    BUILD_DIR=build
+    CONDA_DIR=${BUILD_DIR}/conda
+    mkdir -p ./${BUILD_DIR}
+    rm -rf ${CONDA_DIR}
+    
+    PIPENV_VERBOSITY=-1 pipenv run python -c "import platform; print('.'.join(platform.python_version_tuple()[:2]))" > ${BUILD_DIR}/.python-version
+    
+    pipenv requirements > ${BUILD_DIR}/requirements.txt
+    cat <<EOF > ${BUILD_DIR}/environment.yml
+    dependencies:
+        - python=$(cat ${BUILD_DIR}/.python-version)
+        - pip:
+            - -r requirements.txt
+    EOF
+    conda env create -p ${CONDA_DIR} -f ${BUILD_DIR}/environment.yml
+    CURRENT_DIR=$(pwd)
+    cd ${BUILD_DIR} && conda run -p ${CURRENT_DIR}/${CONDA_DIR} conda package --pkg-name thejob
+    cd ${CURRENT_DIR}
+    mkdir dist/
+    mv ${BUILD_DIR}/thejob-*.tar.bz2 dist/

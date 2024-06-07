@@ -24,6 +24,10 @@ logs SERVICE="":
 # Do nothing but a hint to clean-all
 clean: stop 
   @echo "Run 'just clean-all' to perform a complete cleanup of the docker environment"
+  just _find_and_remove_dir ".*_cache"
+    
+@_find_and_remove_dir PATTERN:
+    find . -name "{{PATTERN}}" -type d -maxdepth 1 -exec rm -rf {} \;
 
 # Perform a complete cleanup of the docker environment
 clean-all:

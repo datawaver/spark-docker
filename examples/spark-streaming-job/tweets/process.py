@@ -34,7 +34,7 @@ def process(tweets):
     timestamp = timestamp = datetime.now(tz=timezone.utc).isoformat()
 
     data = {
-        "tweets": cleaned_tweets,
+        "content": cleaned_tweets,
         "timestamp": timestamp,
     }
     # add the enrichments to the data
@@ -44,4 +44,4 @@ def process(tweets):
 
 
 def clean_tweet(tweet):
-    return tweet.strip().replace("\n", " ")
+    return tweet.replace("RT:", "")

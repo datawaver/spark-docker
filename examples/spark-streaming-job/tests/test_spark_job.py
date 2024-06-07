@@ -33,32 +33,33 @@ def mock_db_client():
 
 
 @patch("tweets.utils.fetch_any_rest_endpoint")
-@patch("MongoClient")
 def test_process_rdd(
-    mock_fetch_any_rest_endpoint, mock_MongoClient, spark_context, streaming_context
+    mock_fetch_any_rest_endpoint, spark_context, streaming_context, mock_db_client
 ):
     # Create a sample RDD with tweets
     tweets = [
         "This is a tweet about COVID-19 #coronavirus",
         "RT:Another retweet related to the pandemic",
         "A tweet with a URL https://example.com",
+        " This tweet has spaces in the end and beginning, we preserve them ",
     ]
     rdd = spark_context.parallelize(tweets)
 
     # Set up the expected cleaned tweets
     expected_cleaned_tweets = [
         "This is a tweet about COVID-19 #coronavirus",
-        "RT:Another retweet related to the pandemic",
+        "Another retweet related to the pandemic",
         "A tweet with a URL https://example.com",
+        " This tweet has spaces in the end and beginning, we preserve them ",
     ]
 
     # Set up the mock return value for fetch_coronavirus_data
-    mock_fetch_any_rest_endpoint.return_value = {"cases": 42, "deaths": 23}
+    mock_fetch_any_rest_endpoint.return_value = {"cases": 1000, "deaths": 100}
 
-    process_rdd(rdd)
+    process_rdd(mongodb_client=mock_db_client, rdd=rdd)
 
     # Assert that write_to_sink is called with the expected data
-    mock_MongoClient.__getitem__.return_value.__getitem__.return_value.insert_one.assert_called_once()
+    mock_db_client.__getitem__.return_value.__getitem__.return_value.insert_one.assert_called_once()
     call_args = mock_db_client.__getitem__.return_value.__getitem__.return_value.insert_one.call_args[
         0
     ]

@@ -17,25 +17,28 @@ MONGODB_COLLECTION = os.getenv("MONGODB_COLLECTION")
 
 BUFFER_SIZE_IN_SECONDS = 20  # Batch interval of 20 seconds
 
+# mongodb_client = MongoClient(MONGODB_HOST, MONGODB_PORT)
+
 
 def main():
     spark = SparkSession.builder.appName("TwitterCovidStream").getOrCreate()
+    with MongoClient(MONGODB_HOST, MONGODB_PORT) as mongodb_client:
+        sc = spark.sparkContext
 
-    sc = spark.sparkContext
-    ssc = StreamingContext(sparkContext=sc, batchDuration=BUFFER_SIZE_IN_SECONDS)
-    tweets = ssc.socketTextStream(TWITTER_STREAM_HOST, TWITTER_STREAM_PORT)
-    tweets.foreachRDD(process_rdd)
+        ssc = StreamingContext(sparkContext=sc, batchDuration=BUFFER_SIZE_IN_SECONDS)
 
-    ssc.start()
-    ssc.awaitTermination()
+        tweets = ssc.socketTextStream(TWITTER_STREAM_HOST, TWITTER_STREAM_PORT)
+        tweets.foreachRDD(lambda rdd: process_rdd(mongodb_client, rdd))
+
+        ssc.start()
+        ssc.awaitTermination()
 
 
-def process_rdd(rdd):
+def process_rdd(mongodb_client, rdd):
     if not rdd.isEmpty():
-        with MongoClient(MONGODB_HOST, MONGODB_PORT) as mongodb_client:
-            tweets = rdd.collect()
-            data = process(tweets)
-            write_to_sink(mongodb_client, data)
+        tweets = rdd.collect()
+        data = process(tweets)
+        write_to_sink(mongodb_client, data)
 
 
 def write_to_sink(client, data):
