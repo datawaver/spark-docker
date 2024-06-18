@@ -39,6 +39,11 @@ clean-all:
   docker-compose down --rmi all --volumes --remove-orphans
   docker image prune -f
 
+# Test is we just can start everything
+@test:
+  just start || echo "🚫 [ERROR] Failed to start everything successfully. 🚫"
+  just stop
+
 # ----------------------------------------
 # Additional recipes for debugging and testing
 # ----------------------------------------
