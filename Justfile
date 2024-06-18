@@ -3,8 +3,10 @@
 MASTER_SPARK_UI_PORT := env_var_or_default('MASTER_SPARK_UI_PORT', '8080')
 
 # Default recipe
-default:
+@default:
   just --list
+  echo 
+  echo "Master Spark UI port: {{MASTER_SPARK_UI_PORT}}"
 
 alias run := start
 # Start the Spark cluster in detached mode

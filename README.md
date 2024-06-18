@@ -37,6 +37,7 @@ Here an example flow:
    ```
    just start
    ```
+   If yout hit errors, check the troubleshooting section below.
 
 2. Access the Spark web UI by opening a web browser and navigating to `http://localhost:8080`.
 
@@ -63,6 +64,19 @@ The spark-docker project provides a default configuration for the Spark cluster.
 Make sure to rebuild the Docker images after making any configuration changes.
 
 ## Troubleshooting
+
+### Spark Master Not Starting
+
+```
+Error response from daemon: driver failed programming external connectivity on endpoint spark-docker-master-1 (...): Bind for 0.0.0.0:8080 failed: port is already allocated
+```
+Use another port for the Spark Master UI by setting the `MASTER_SPARK_UI_PORT` environment variable before starting the cluster:
+
+```
+export MASTER_SPARK_UI_PORT=8888
+```
+
+### SparkPi Example Error
 
 As of some changes in the spark distribution in the Bitnami spark image, the following error may occur:
 
