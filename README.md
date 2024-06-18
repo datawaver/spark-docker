@@ -62,6 +62,25 @@ The spark-docker project provides a default configuration for the Spark cluster.
 
 Make sure to rebuild the Docker images after making any configuration changes.
 
+## Troubleshooting
+
+As of some changes in the spark distribution in the Bitnami spark image, the following error may occur:
+
+```
+$ /opt/bitnami/spark# bin/run-example SparkPi
+
+WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Exception in thread "main" org.apache.spark.SparkException: Failed to get main class in JAR with error 'File file:/opt/bitnami/spark/run-example does not exist'.  Please specify one with --class.
+...
+```
+This is because someone added `--driver-java-options` to the `bin/spark-class org.apache.spark.deploy.SparkSubmit ` call which breaks argument parsing for `run-example`.
+
+To get run-example working again, you can call it directly with the `spark-submit` command. Here is the example for `SparkPi`:
+
+```
+$SPARK_HOME/bin/spark-class org.apache.spark.deploy.SparkSubmit run-example SparkPi
+```
+
 ## Contributing
 
 Contributions to spark-docker are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request. Or just reach out to us directly.
