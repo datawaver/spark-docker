@@ -1,5 +1,7 @@
 #!/usr/bin/env just
 
+MASTER_SPARK_UI_PORT := env_var_or_default('MASTER_SPARK_UI_PORT', '8080')
+
 # Default recipe
 default:
   just --list
@@ -8,6 +10,7 @@ alias run := start
 # Start the Spark cluster in detached mode
 start SERVICE="":
   docker-compose up -d {{SERVICE}}
+  @echo "To access the spark master use: http://localhost:{{MASTER_SPARK_UI_PORT}}"
 
 # Stop and remove the Spark cluster containers
 stop:

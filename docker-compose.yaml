@@ -15,7 +15,7 @@ services:
       - SPARK_SSL_ENABLED=no
       - SPARK_PUBLIC_DNS=localhost
     ports:
-      - "8080:8080" # Spark Master Web UI
+      - "${MASTER_SPARK_UI_PORT:-8080}:8080" # Spark Master Web UI
       - "7077:7077" # Spark Master Port
     # volumes:
     #   - /path/to/spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
